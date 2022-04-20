@@ -45,6 +45,17 @@ $app->get(
 );
 
 
+
+$app->get(
+    '/products/get',
+    [$prod, 'getProducts']
+);
+
+$app->get(
+    '/products/get/{per_page}/{page}',
+    [$prod, 'getProducts']
+);
+
 $app->handle(
     $_SERVER["REQUEST_URI"]
 );

@@ -31,4 +31,14 @@ class Products extends Injectable
 
         return json_encode($outputArr);
     }
+
+    public function getProducts($per_page = 10, $page = 1)
+    {
+        $options = [
+            "limit" => intval($per_page),
+            "skip" => intval($per_page) * (intval($page) -1)
+        ];
+        $response = $this->mongo->products->find(array(), $options)->toArray();
+        return json_encode($response);
+    }
 }
