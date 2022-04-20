@@ -1,75 +1,49 @@
 <?php
 
 use Phalcon\Mvc\Micro;
-
+use Phalcon\Di\FactoryDefault;
 use Phalcon\Loader;
 
 
 
-
-$loader =new Loader();
+require_once("vendor/autoload.php");
+$loader = new Loader();
 
 $loader->registerNamespaces(
-[
-    'Api\Handlers'=> './handlers'
+    [
+        'Api\Handlers' => './handlers'
     ]
 );
 $loader->register();
 
 
 $prod = new Api\Handlers\Products();
-$app = new Micro();
-$app->get (
-'/invoices/view/{id}/{where}/{limit}/{page}',
-[$prod,'get']);
-
-
-$app->handle(
-$SERVER[ "REQUEST_URI"]
-);
-
-
-
-
-
+use Phalcon\Mvc\Application;
 $app = new Micro();
 
-$app->get(
-    '/api/robots',
+
+$container = new FactoryDefault();
+$application = new Application($container);
+$container->set(
+    'mongo',
     function () {
-        return "hola";
-    }
+        $mongo =  new MongoDB\Client('mongodb://mongo', array('username'=>'root',"password"=>'password123'));
+        return $mongo->store;
+    },
+    true
+);
+
+
+$app->get(
+    '/invoices/view/{id}/{where}/{limit}/{page}',
+    [$prod, 'get']
 );
 
 $app->get(
-    '/api/robots/search/{name}',
-    function ($name) {
-    }
+    '/products/search/{keyword}',
+    [$prod, 'search']
 );
 
-$app->get(
-    '/api/robots/{id:[0-9]+}',
-    function ($id) {
-    }
-);
-
-$app->post(
-    '/api/robots',
-    function () {
-    }
-);
-
-$app->put(
-    '/api/robots/{id:[0-9]+}',
-    function ($id) {
-    }
-);
-
-$app->delete(
-    '/api/robots/{id:[0-9]+}',
-    function ($id) {
-    }
-);
 
 $app->handle(
     $_SERVER["REQUEST_URI"]
